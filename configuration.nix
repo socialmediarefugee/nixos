@@ -49,7 +49,6 @@
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
-  # services.xserver.desktopManager.plasma5.enable = true;
   services.desktopManager.plasma6.enable = true;
   services.xserver.displayManager.sddm.enable = true;
 
@@ -86,10 +85,13 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.sunshine = {
     isNormalUser = true;
-    description = "David Fuller";
+    description = "Nunya Bidness";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       firefox
+      vimPlugins.nvchad 
+      obsidian
+      csview
 #      vimPlugins.barbecue-nvim
 #      vimPlugins.lazydev-nvim
       lazarus-qt6
@@ -101,7 +103,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command"];
 
 
   # List packages installed in system profile. To search, run:
@@ -109,23 +111,33 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
+    direnv
+    devenv
+    openssl
+    pkg-config
     git
-    home-manager
     wget
+    unzip
+    home-manager
+    wl-clipboard
     ripgrep
+    fd
     fzf
+    bat
     zsh
     fish
     lsd
-#    nvimpager
+    clang_20
     nodejs_23
-    bat
-#    neovim
-#    neovim-qt
+    python314
     rustup
     zig
+    tree-sitter
     neovim
     neovide
+    lua5_1
+    lua51Packages.jsregexp
+    luarocks
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
