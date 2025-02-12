@@ -81,16 +81,33 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
+  environment.variables = {
+    EDITOR = "nvim";
+  };
+
+  environment.shellAliases = {
+    ls = "lsd";
+    ll = "lsd -l";
+    la = "lsd -lah";
+    cat = "bat";
+    vi = "nvim";
+  }; 
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.sunshine = {
     isNormalUser = true;
     description = "Nunya Bidness";
     extraGroups = [ "networkmanager" "wheel" ];
+
+    # environment.variables = {
+    #   EDITOR = "nvim";
+       # PATH = [ "~/bin" ] ++ pkgs.stdenv.pkgs.buildEnv.PATH;
+    # };
     packages = with pkgs; [
       firefox
       vimPlugins.nvchad 
       obsidian
+      powerline
       csview
 #      vimPlugins.barbecue-nvim
 #      vimPlugins.lazydev-nvim
@@ -98,6 +115,8 @@
     #  kate
     #  thunderbird
     ];
+
+
   };
 
   # Allow unfree packages
@@ -138,6 +157,7 @@
     lua5_1
     lua51Packages.jsregexp
     luarocks
+    vscode-fhs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
