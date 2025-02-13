@@ -11,9 +11,24 @@
     ];
 
   # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/vda";
-  boot.loader.grub.useOSProber = true;
+boot.loader = {
+  efi = {
+    canTouchEfiVariables = true;
+  };
+  grub = {
+     enable = true;
+     efiSupport = true;
+     #device = "/dev/nvme0n1p4";
+     device = "nodev";
+     useOSProber = true;
+  };
+};
+
+#  boot.loader.grub.enable = true;
+ # boot.loader.efiSupport = true;
+ # boot.loader.canTouchEfiVariables = true;
+#  boot.loader.grub.device = "/dev/nvme0n1";
+ # boot.loader.grub.useOSProber = true;
   boot.extraModprobeConfig = "options kvm_intel nexted=1";
   # We want zfs once we get more familiar with its requirements
   boot.supportedFilesystems = [ "lvm2" "btrfs" "xfs" "f2fs" "fat32" "ntfs" ];
