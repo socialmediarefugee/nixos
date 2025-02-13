@@ -85,6 +85,10 @@
     EDITOR = "nvim";
   };
 
+  virtualization.libvirtd.enable = true;
+
+  services.virtManager = { enable = true };
+
   environment.shellAliases = {
     ls = "lsd";
     ll = "lsd -l";
@@ -138,6 +142,7 @@
     wget
     unzip
     home-manager
+    virt-manager
     wl-clipboard
     ripgrep
     fd
