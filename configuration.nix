@@ -15,6 +15,8 @@
   boot.loader.grub.device = "/dev/vda";
   boot.loader.grub.useOSProber = true;
   boot.extraModprobeConfig = "options kvm_intel nexted=1";
+  # We want zfs once we get more familiar with its requirements
+  boot.supportedFilesystems = [ "lvm2" "btrfs" "xfs" "f2fs" "fat32" "ntfs" ];
 
   networking.hostName = "picon"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
