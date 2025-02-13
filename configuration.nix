@@ -10,14 +10,13 @@
       ./hardware-configuration.nix
     ];
 
-
-
   # Bootloader.
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/vda";
   boot.loader.grub.useOSProber = true;
+  boot.extraModprobeConfig = "options kvm_intel nexted=1";
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "picon"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -52,7 +51,6 @@
   services.desktopManager.plasma6.enable = true;
   services.xserver.displayManager.sddm.enable = true;
 
-
   # Configure keymap in X11
   services.xserver = {
     layout = "us";
@@ -85,9 +83,16 @@
     EDITOR = "nvim";
   };
 
-  virtualization.libvirtd.enable = true;
+  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.qemu = {
+    swtpm.enable = true;
+    ovmf.packages = [ pkgs.OVMFFull.fd ];
+  };
+  virtualisation.spiceUSBRedirection.enable = true;
 
-  services.virtManager = { enable = true };
+  #virtualization.kvm.enable = true;
+
+  #services.virtManager = { enable = true; };
 
   environment.shellAliases = {
     ls = "lsd";
@@ -101,7 +106,7 @@
   users.users.sunshine = {
     isNormalUser = true;
     description = "Nunya Bidness";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd"];
 
     # environment.variables = {
     #   EDITOR = "nvim";
@@ -126,20 +131,20 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = ["nix-command"];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
     direnv
     devenv
     openssl
     pkg-config
     git
     wget
+    curl
     unzip
     home-manager
     virt-manager
@@ -176,7 +181,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
