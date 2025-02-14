@@ -24,11 +24,6 @@ boot.loader = {
   };
 };
 
-#  boot.loader.grub.enable = true;
- # boot.loader.efiSupport = true;
- # boot.loader.canTouchEfiVariables = true;
-#  boot.loader.grub.device = "/dev/nvme0n1";
- # boot.loader.grub.useOSProber = true;
   boot.extraModprobeConfig = "options kvm_intel nexted=1";
   # We want zfs once we get more familiar with its requirements
   boot.supportedFilesystems = [ "lvm2" "btrfs" "xfs" "f2fs" "fat32" "ntfs" ];
@@ -79,6 +74,8 @@ boot.loader = {
 
   # Enable sound with pipewire.
   # sound.enable = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -141,8 +138,6 @@ boot.loader = {
     #  kate
     #  thunderbird
     ];
-
-
   };
 
   # Allow unfree packages
@@ -185,6 +180,8 @@ boot.loader = {
     lua51Packages.jsregexp
     luarocks
     vscode-fhs
+    plasma-browser-integration
+    bluez
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -199,6 +196,7 @@ boot.loader = {
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.flatpak.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
