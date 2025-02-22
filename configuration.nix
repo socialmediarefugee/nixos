@@ -5,30 +5,29 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./nixos-hardware/omen/15-ek1013dx
+    #<home-manager/nixos>
+  ];
+
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.nvidia.acceptLicense = true;
+
+  hardware.graphics.enable = true;
+  hardware.bluetooth.enable = true;
 
   # Bootloader.
-boot.loader = {
-  efi = {
-    canTouchEfiVariables = true;
-  };
-  grub = {
-     enable = true;
-     efiSupport = true;
-     #device = "/dev/nvme0n1p4";
-     device = "nodev";
-     useOSProber = true;
-  };
-};
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.extraModprobeConfig = "options kvm_intel nexted=1";
-  # We want zfs once we get more familiar with its requirements
-  boot.supportedFilesystems = [ "lvm2" "btrfs" "xfs" "f2fs" "fat32" "ntfs" ];
-
-  networking.hostName = "picon"; # Define your hostname.
+  networking.hostName = "pikon"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -57,26 +56,41 @@ boot.loader = {
   };
 
   # Enable the X11 windowing system.
+  # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
 
   # Enable the KDE Plasma Desktop Environment.
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.theme = "breeze";
   services.desktopManager.plasma6.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = false;
+
+  #Laptop power settings
+  /*
+   Somewhere, it seems to be settings services.power-services-daemon... 
+
+  services.tlp = {
+    enable = true;
+    settings = {
+      CPU_SCALING_GOVERNOR_ON_AC = null; # Let kernel/thermald handle
+      CPU_SCALING_GOVERNOR_ON_BAT = null;
+      TLP_DEFAULT_MODE = "AC"; # Or "BAT" based on power state
+    };
+  };
+  */
 
   # Configure keymap in X11
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "us";
-    xkbVariant = "";
+    variant = "";
   };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  # sound.enable = true;
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
+  services.blueman.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -93,95 +107,58 @@ boot.loader = {
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
-  environment.variables = {
-    EDITOR = "nvim";
-  };
-
-  virtualisation.libvirtd.enable = true;
-  virtualisation.libvirtd.qemu = {
-    swtpm.enable = true;
-    ovmf.packages = [ pkgs.OVMFFull.fd ];
-  };
-  virtualisation.spiceUSBRedirection.enable = true;
-
-  #virtualization.kvm.enable = true;
-
-  #services.virtManager = { enable = true; };
-
-  environment.shellAliases = {
-    ls = "lsd";
-    ll = "lsd -l";
-    la = "lsd -lah";
-    cat = "bat";
-    vi = "nvim";
-  }; 
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.sunshine = {
     isNormalUser = true;
-    description = "Nunya Bidness";
-    extraGroups = [ "networkmanager" "wheel" "libvirtd"];
-
-    # environment.variables = {
-    #   EDITOR = "nvim";
-       # PATH = [ "~/bin" ] ++ pkgs.stdenv.pkgs.buildEnv.PATH;
-    # };
-    packages = with pkgs; [
-      firefox
-      vimPlugins.nvchad 
-      obsidian
-      powerline
-      csview
-#      vimPlugins.barbecue-nvim
-#      vimPlugins.lazydev-nvim
-      lazarus-qt6
-    #  kate
-    #  thunderbird
+    description = "Nuny Bidness";
+    extraGroups = [
+      "networkmanager"
+      "wheel"
     ];
   };
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
+/*
+  environment.etc."system-packages.nix".text = ''
+    {
+      systemPackages = [
+        ${lib.concatStringsSep "\n        " (
+          map (pkg: ''"${pkg.name}"'') config.environment.systemPackages
+        )}
+      ];
+    }
+  '';
+*/
+  # Install firefox.
+  programs.firefox.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    direnv
-    devenv
-    openssl
-    pkg-config
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
+
+    acpi
+    usbutils
+    brightnessctl
+    smartmontools
+    intel-gpu-tools
+    ethtool
+    strace
+    lsof
+    tcpdump
+    tmux
+    rsync
+    pciutils
+    lm_sensors
+    nvidia-modprobe
     git
-    wget
-    curl
+    neovim # Nano should have at least a simple vi mode or vi should be included.
     unzip
-    home-manager
-    virt-manager
-    wl-clipboard
-    ripgrep
-    fd
-    fzf
-    bat
-    zsh
-    fish
-    lsd
-    clang_20
-    nodejs_23
-    python314
-    rustup
-    zig
-    tree-sitter
-    neovim
-    neovide
-    lua5_1
-    lua51Packages.jsregexp
-    luarocks
-    vscode-fhs
-    plasma-browser-integration
-    bluez
+    nixos-option # for finding those pesky optiosn
+    nix-index
+
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -196,13 +173,12 @@ boot.loader = {
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  services.flatpak.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -210,6 +186,6 @@ boot.loader = {
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.05"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 
 }
