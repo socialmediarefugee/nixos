@@ -9,7 +9,6 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./nixos-hardware/omen/15-ek1013dx
-    #<home-manager/nixos>
   ];
 
   nix.settings.experimental-features = [
