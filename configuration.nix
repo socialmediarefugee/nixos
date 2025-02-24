@@ -21,10 +21,20 @@
 
   hardware.graphics.enable = true;
   hardware.bluetooth.enable = true;
+  hardware.nvidia = {
+    modesetting.enable = true;
+    open = true;
+    powerManagement.enable = true;
+    nvidiaPersistenced.enable = true;
+    gsp.enable = true;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  #boot.blacklistedKernelModules = [ "nouveau" ];
 
   networking.hostName = "pikon"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -57,6 +67,7 @@
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
+  services.xserver.videoDrivers = [ "modesetting" ];
 
   # Enable the KDE Plasma Desktop Environment.
   services.displayManager.sddm.enable = true;
@@ -108,6 +119,7 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  /*
   users.users.sunshine = {
     isNormalUser = true;
     description = "Nuny Bidness";
@@ -116,7 +128,7 @@
       "wheel"
     ];
   };
-
+  */
 
 /*
   environment.etc."system-packages.nix".text = ''
@@ -144,9 +156,7 @@
     smartmontools
     intel-gpu-tools
     ethtool
-    strace
     lsof
-    tcpdump
     tmux
     rsync
     pciutils
@@ -154,9 +164,10 @@
     nvidia-modprobe
     git
     neovim # Nano should have at least a simple vi mode or vi should be included.
+    vimPlugins.nvchad # We want this for root
     unzip
-    nixos-option # for finding those pesky optiosn
     nix-index
+    mesa-demos
 
   ];
 
