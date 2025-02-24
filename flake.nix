@@ -51,57 +51,58 @@
 
               users.users.sunshine = {
                 isNormalUser = true;
-               description = "Nunya Bidness";
-               extraGroups = [
-                 "networkmanager"
-                 "wheel"
-                 "video"
-                 "libvirtd"
+                description = "Nunya Bidness";
+                extraGroups = [
+                  "networkmanager"
+                  "wheel"
+                  "video"
+                  "libvirtd"
+                 ];
+              };
+  
+              users.users.apollo = {
+                isNormalUser = true;
+                home = "home/apollo";
+                description = "Apollo Hyprland";
+                extraGroups = [ 
+                  "networkmanager" 
+                  "wheel" 
+                  "video" 
+                  "libvirtd" 
                 ];
-             };
+              };
 
-             users.users.apollo = {
-               isNormalUser = true;
-               home = "home/apollo";
-               description = "Apollo Hyprland";
-               extraGroups = [ 
-                 "networkmanager" 
-                 "wheel" 
-                 "video" 
-                 "libvirtd" 
-               ];
-             };
-
-             users.users.boomer = {
-               isNormalUser = true;
-               home = "/home/boomer";
-               description = "Boomer (Terminal)";
-               extraGroups = [ "networkmanager"];
-               shell = nixpkgs.lib.getExe nixpkgs.legacyPackages.x86_64-linux.bash;
-             };
+              users.users.boomer = {
+                isNormalUser = true;
+                home = "/home/boomer";
+                description = "Boomer (Terminal)";
+                extraGroups = [ "networkmanager"];
+                shell = nixpkgs.lib.getExe nixpkgs.legacyPackages.x86_64-linux.bash;
+              };
             }
-          {
-          environment.systemPackages = with nixpkgs.lib; [
-            nixpkgs.legacyPackages.x86_64-linux.nano
-          ];
-          programs.hyprland = {
-            enable = true;
-            packages = hyprland.packages.x86_64-linux.hyprland;
-          };
-          home-manager.modules.home-manager = {
-            home-manager.users.root = {pkgs,...}: {
 
-            };
-            home-manager.users.boomer = { pkgs, ...}: {
-              programs.bash.enable = true;
-            };
-            home-manager.users.apollo = {pkgs, ...}: {
-              wayland.windowManager.hyperland.enable = true;
-            };
-          };
-          }
+            {
+              environment.systemPackages = with nixpkgs.lib; [
+                nixpkgs.legacyPackages.x86_64-linux.nano
+              ];
+              programs.hyprland = {
+                enable = true;
+                packages = hyprland.packages.x86_64-linux.hyprland;
+              };
+              home-manager.modules.home-manager = {
+                home-manager.users.root = {pkgs,...}: {
+  
+                };
+                home-manager.users.boomer = { pkgs, ...}: {
+                  programs.bash.enable = true;
+                };
+                home-manager.users.apollo = {pkgs, ...}: {
+                  wayland.windowManager.hyperland.enable = true;
+                };
+              };
+            }
           ];
-        } # pikon
+        }; # pikon
       };
-    };
+  };
 }
