@@ -144,6 +144,11 @@
   # Install firefox.
   programs.firefox.enable = true;
 
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -168,7 +173,8 @@
     unzip
     nix-index
     mesa-demos
-
+    xclip
+    copyq
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

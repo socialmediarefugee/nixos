@@ -52,6 +52,7 @@
               users.users.sunshine = {
                 isNormalUser = true;
                 description = "Nunya Bidness";
+                home = "/home/sunshine";
                 extraGroups = [
                   "networkmanager"
                   "wheel"
@@ -62,7 +63,7 @@
   
               users.users.apollo = {
                 isNormalUser = true;
-                home = "home/apollo";
+                home = "/home/apollo";
                 description = "Apollo Hyprland";
                 extraGroups = [ 
                   "networkmanager" 
@@ -85,23 +86,39 @@
               environment.systemPackages = with nixpkgs.lib; [
                 nixpkgs.legacyPackages.x86_64-linux.nano
               ];
+
               programs.hyprland = {
                 enable = true;
-                packages = hyprland.packages.x86_64-linux.hyprland;
+#                packages = hyprland.packages.x86_64-linux.hyprland;
               };
-              home-manager.modules.home-manager = {
-                home-manager.users.root = {pkgs,...}: {
-  
-                };
-                home-manager.users.boomer = { pkgs, ...}: {
-                  programs.bash.enable = true;
-                };
-                home-manager.users.apollo = {pkgs, ...}: {
-                  wayland.windowManager.hyperland.enable = true;
-                };
+
+              #Working on a terminal only login account
+
+              #services.displayManager.sddm.settings.Users.UserBlacklist = [ "boomer"];
+              services.flatpak.enable = true;
+
+/*
+              services.getty.autoLogin = {
+                enable = true;
+                user = "boomer";
+                tty = "tty1";
               };
-            }
-          ];
+*/
+
+/*
+              home-manager.modules.home-manager.users.root = {pkgs,...} : {
+
+              };
+              modules.home-manager.users.apollo = {pkgs, ...}: {
+                wayland.windowManager.hyperland.enable = true;
+              };
+
+              modules.home-manager.users.boomer = { pkgs, ...}: {
+                programs.bash.enable = true;
+              };
+*/
+            } 
+          ]; # modules
         }; # pikon
       };
   };
