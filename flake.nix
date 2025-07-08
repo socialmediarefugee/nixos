@@ -1,9 +1,12 @@
+# Drawing from Misterio77/nix-starter-configs and 
+# ryan4yin/nix-config/blob/i3-kickstarter/
 {
-  description = "NixOS configuration";
+  description = "Entrypoint Flake";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    systems.url = "github:nix-systems/default";
     nixos-hardware = {
       #url = "git+file:./nixos-hardware";
       url = "github:/socialmediarefugee/nixos-hardware";
@@ -20,106 +23,56 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+
+    # Basic theming
+    nix-colors.url = "github:misterio77/nix-colors";
+    # Alternative window manager
     hyprland.url = "github:hyprwm/Hyprland";
-  };
+    nix-mcp-servers.url = "github:aloshy-ai/nix-mcp-servers";
+   };
 
-  outputs =
-    inputs@{
-      nixpkgs,
-      home-manager,
-      plasma-manager,
-      hyprland,
-      ...
-    }:
-    {
-      nixosConfigurations = {
-        pikon = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./configuration.nix
-	          ./modules/virtualisation.nix
-      	    ./modules/services.nix
-            {
+  outputs = { self, nixpkgs, home-manager, plasma-manager, systems, nixos-hardware, ... } @ inputs: 
+  let 
+    inherit (self) outputs;
+    lib = nixpkgs.lib ; #// home-manager.lib ;
+    forEachSystem = f: lib.genAttrs (import systems) (system: f pkgsFor.${system});
+    pkgsFor = lib.genAttrs (import systems) (
+      system:
+        import nixpkgs {
+          inherit system;
+          config.settings.experimental-features = ["nix-command" "flakes"];
+          config.allowUnfree = false;
+        }
+    );
+  in {
+    inherit lib;
+    nixosModules = import ./modules;
 
-              users.users.root = {
-                packages = with nixpkgs.lib; [
-                  nixpkgs.legacyPackages.x86_64-linux.tcpdump
-                  nixpkgs.legacyPackages.x86_64-linux.nixos-option
-                  nixpkgs.legacyPackages.x86_64-linux.strace
-                ];
-              };
+    packages = forEachSystem(pkgs: import ./packages {inherit pkgs;});
+    shells = forEachSystem(pkgs: import ./shells {inherit pkgs;});
 
-              users.users.sunshine = {
-                isNormalUser = true;
-                description = "Nunya Bidness";
-                home = "/home/sunshine";
-                extraGroups = [
-                  "networkmanager"
-                  "wheel"
-                  "video"
-                  "libvirtd"
-                 ];
-              };
-  
-              users.users.apollo = {
-                isNormalUser = true;
-                home = "/home/apollo";
-                description = "Apollo Hyprland";
-                extraGroups = [ 
-                  "networkmanager" 
-                  "wheel" 
-                  "video" 
-                  "libvirtd" 
-                ];
-              };
+    # Because we run stuff
+    programs.nix-ld.enable = true;
 
-              users.users.boomer = {
-                isNormalUser = true;
-                home = "/home/boomer";
-                description = "Boomer (Terminal)";
-                extraGroups = [ "networkmanager"];
-                shell = nixpkgs.lib.getExe nixpkgs.legacyPackages.x86_64-linux.bash;
-              };
-            }
+    # Optimize the store periodically
+    nix.optimise = true;
 
-            {
-              environment.systemPackages = with nixpkgs.lib; [
-                nixpkgs.legacyPackages.x86_64-linux.nano
-              ];
+    fmt = forEachSystem(pkgs: pkgs.nixfmt-rfc-style);
 
-              programs.hyprland = {
-                enable = true;
-#                packages = hyprland.packages.x86_64-linux.hyprland;
-              };
-
-              #Working on a terminal only login account
-
-              #services.displayManager.sddm.settings.Users.UserBlacklist = [ "boomer"];
-              services.flatpak.enable = true;
-
-/*
-              services.getty.autoLogin = {
-                enable = true;
-                user = "boomer";
-                tty = "tty1";
-              };
-*/
-
-/*
-              home-manager.modules.home-manager.users.root = {pkgs,...} : {
-
-              };
-              modules.home-manager.users.apollo = {pkgs, ...}: {
-                wayland.windowManager.hyperland.enable = true;
-              };
-
-              modules.home-manager.users.boomer = { pkgs, ...}: {
-                programs.bash.enable = true;
-              };
-*/
-            } 
-          ]; # modules
-        }; # pikon
+    # Machine configs
+    # TODO: Tie this to machine unique id's or serial numbers
+    # TODO: Abstract the machine configuration
+    nixosConfigurations = {
+      caprica = lib.nixosSystem {
+        specialArgs = { 
+          inherit inputs outputs;
+        };
+        modules = [
+          ./hosts/caprica  # Sets up the caprica host
+          ./hosts/caprica/modules  # Host specific modules
+          ./modules # System modules
+        ];
       };
+    };
   };
 }
